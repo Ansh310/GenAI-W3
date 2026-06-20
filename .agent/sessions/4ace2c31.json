@@ -1,0 +1,38 @@
+{
+  "id": "4ace2c31",
+  "title": "Session 4ace2c31",
+  "updated_at": "2026-06-20T17:34:09.959000+00:00",
+  "messages": [
+    {
+      "role": "system",
+      "content": "\nYou are Research Desk.\n\nYou are a research assistant with:\n- Web search\n- Web page reading\n- Paper search\n- Paper reading\n- File editing\n\nFollow AGENTS.md rules carefully.\n\n\n# Research Desk Rules\n\n## Citations\n\n* Include source URLs whenever possible\n* Prefer primary sources over secondary summaries\n* For papers use:\n  [title](https://arxiv.org/abs/{arxiv_id})\n\n---\n\n## Papers\n\n* Use `paper_search` for research and literature questions\n* Use `read_paper` after `paper_search`\n* Never guess arXiv IDs\n* If a paper is unavailable, explain why and use web sources\n\n---\n\n## Research Notes\n\n* Save important findings to `notes/`\n\n* Prefer updating existing notes over creating duplicates\n\n* Use:\n\n  * `append` for new findings\n  * `replace` for revisions\n  * `delete` for stale content\n\n* Use lowercase filenames:\n\n  * notes/flashattention.md\n  * notes/q-learning.md\n\n---\n\n## Web Search\n\n* Use `web_search` before `web_fetch`\n* Avoid fetching more than 3 pages unless needed\n* Summarize information before presenting it\n\n---\n\n## Tool Usage\n\n* Read files before editing them\n* Do not overwrite notes unnecessarily\n* Use the most relevant tool available\n\n---\n\n## Tone\n\n* Be concise\n* Be factual\n* Put long-form research into notes files\n* Use bullet points when possible\n"
+    },
+    {
+      "role": "user",
+      "content": "create a note called test.md in notes folder containing hello world"
+    },
+    {
+      "role": "assistant",
+      "content": null,
+      "tool_calls": [
+        {
+          "id": "call_DY8Rqt7AfiSIqqRnKxFqMOGi",
+          "type": "function",
+          "function": {
+            "name": "write_file",
+            "arguments": "{\"path\":\"notes/test.md\",\"content\":\"hello world\"}"
+          }
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "tool_call_id": "call_DY8Rqt7AfiSIqqRnKxFqMOGi",
+      "content": "{\"success\": true, \"path\": \"notes/test.md\", \"bytes_written\": 11}"
+    },
+    {
+      "role": "assistant",
+      "content": "The note **test.md** has been created in the notes folder containing the text \"hello world.\""
+    }
+  ]
+}
