@@ -113,10 +113,12 @@ def read_paper(
         )
 
         if meta.status_code == 404:
-            return {
-                "error":
-                "Paper not indexed"
-            }
+
+            from tools.web import web_fetch
+
+            return web_fetch(
+                f"https://arxiv.org/abs/{arxiv_id}"
+            )
 
         meta.raise_for_status()
 
