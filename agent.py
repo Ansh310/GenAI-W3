@@ -95,6 +95,55 @@ def load_session(session_id):
 
     with open(path, "r", encoding="utf-8") as f:
         return json.load(f)
+        
+def list_sessions():
+
+    ensure_dirs()
+
+    sessions = []
+
+    for filename in os.listdir(SESSIONS_DIR):
+
+        if not filename.endswith(".json"):
+            continue
+
+        path = os.path.join(
+            SESSIONS_DIR,
+            filename,
+        )
+
+        try:
+
+            with open(
+                path,
+                "r",
+                encoding="utf-8",
+            ) as f:
+
+                data = json.load(f)
+
+            sessions.append(
+                {
+                    "id": data.get("id"),
+                    "title": data.get(
+                        "title",
+                        "Untitled",
+                    ),
+                    "updated_at": data.get(
+                        "updated_at",
+                        "",
+                    ),
+                }
+            )
+
+        except Exception:
+            pass
+
+    return sorted(
+        sessions,
+        key=lambda x: x["updated_at"],
+        reverse=True,
+    )
 
 
 def build_system_prompt():
@@ -110,6 +159,63 @@ def build_system_prompt():
             prompt += "\n\n" + f.read()
 
     return prompt
+    
+def generate_title(
+    messages,
+):
+
+    try:
+
+        convo = []
+
+        for m in messages:
+
+            if m["role"] in [
+                "user",
+                "assistant",
+            ]:
+
+                convo.append(
+                    f"{m['role']}: "
+                    f"{m['content']}"
+                )
+
+        text = "\n".join(
+            convo[:6]
+        )
+
+        response = (
+            client.chat.completions.create(
+                model=MODEL,
+                messages=[
+                    {
+                        "role":
+                        "system",
+                        "content":
+                        "Generate a "
+                        "3-5 word title."
+                    },
+                    {
+                        "role":
+                        "user",
+                        "content":
+                        text,
+                    },
+                ],
+            )
+        )
+
+        return (
+            response
+            .choices[0]
+            .message
+            .content
+            .strip()
+        )
+
+    except Exception:
+
+        return "Untitled"
 
 TOOLS = [
     {
@@ -261,6 +367,7 @@ class Agent:
     def __init__(
         self,
         session_id=None,
+        self.title = "Untitled",
     ):
 
         ensure_dirs()
@@ -304,10 +411,20 @@ class Agent:
 
         answer = self._run_loop()
 
+        if (
+            self.title
+            == "Untitled"
+            and len(self.messages) >= 4
+        ):
+
+            self.title = generate_title(
+                self.messages
+            )
+
         save_session(
             self.session_id,
             self.messages,
-            title=f"Session {self.session_id}",
+            title=self.title,
         )
 
         return answer
@@ -493,6 +610,60 @@ class REPLAgent(
             ):
                 print()
                 break
+                
+            if user_input == "/sessions":
+
+                sessions = list_sessions()
+
+                print()
+
+                for s in sessions:
+
+                    print(
+                        f"{s['id']}  "
+                        f"{s['title']}"
+                    )
+
+                print()
+
+                continue
+
+            if user_input.startswith(
+                "/resume "
+            ):
+
+                session_id = (
+                    user_input
+                    .split(maxsplit=1)[1]
+                    .strip()
+                )
+
+                try:
+
+                    session = load_session(
+                        session_id
+                    )
+
+                    self.session_id = (
+                        session_id
+                    )
+
+                    self.messages = (
+                        session["messages"]
+                    )
+
+                    print(
+                        f"Loaded "
+                        f"{session_id}"
+                    )
+
+                except Exception as e:
+
+                    print(
+                        f"Error: {e}"
+                    )
+
+                continue
 
             if (
                 not user_input
@@ -513,7 +684,13 @@ class REPLAgent(
 
 
 def main():
+    if "--tui" in sys.argv:
 
+        from tui import main as tui_main
+
+        tui_main()
+        return
+        
     session_id = None
 
     if "--session" in sys.argv:
