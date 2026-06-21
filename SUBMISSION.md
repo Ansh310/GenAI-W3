@@ -134,6 +134,32 @@ Managing this iterative process while maintaining conversation state required ca
 
 ---
 
+## Design Decisions
+
+### File Read Limit
+
+The read_file tool limits output to approximately 12,000 characters.
+This prevents extremely large files from consuming the model context window while still providing enough information for reasoning.
+
+### Dispatch Table
+
+Tool dispatch uses a dictionary mapping:
+
+```python
+mapping = {
+    ...
+}
+```
+## Session Storage
+
+Sessions are stored as JSON files inside .agent/sessions.
+
+JSON was chosen because it is human-readable, easy to debug, and portable across systems.
+
+## Notes Directory
+
+Research findings are stored in notes/ so that information discovered in one session can be reused in future sessions.
+
 ## What I Learned
 
 Through this project I learned:
