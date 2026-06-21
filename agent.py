@@ -367,8 +367,8 @@ class Agent:
     def __init__(
         self,
         session_id=None,
-        self.title = "Untitled",
     ):
+        self.title = "Untitled"
 
         ensure_dirs()
 
