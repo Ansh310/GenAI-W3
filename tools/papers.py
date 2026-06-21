@@ -64,10 +64,12 @@ def paper_search(
 
         for item in data[:limit]:
 
-            arxiv_id = (
-                item.get("id")
-                or item.get("paper", "")
-            )
+            paper_id = item.get("id", {})
+
+            if isinstance(paper_id, dict):
+                arxiv_id = paper_id.get("id", "")
+            else:
+                arxiv_id = paper_id
 
             papers.append(
                 {
